@@ -5,7 +5,8 @@ import { generateQRContent } from '../services/geminiService';
 import { 
   Wand2, Type, Link, Wifi, Mail, Loader2, Palette, Settings2, 
   Eye, EyeOff, Lock, Network, Contact, Phone, Building, 
-  Briefcase, Globe, AlertCircle, Instagram, Twitter, Linkedin, Share2
+  Briefcase, Globe, AlertCircle, Instagram, Twitter, Linkedin, Share2,
+  Maximize
 } from 'lucide-react';
 
 interface InputSectionProps {
@@ -68,7 +69,7 @@ export const InputSection: React.FC<InputSectionProps> = ({ settings, setSetting
       wifiStr += `H:${wifiHidden ? 'true' : 'false'};;`;
       setSettings(prev => ({ ...prev, content: wifiStr }));
     }
-  }, [wifiSSID, wifiPassword, wifiEncryption, wifiHidden, activeTab]);
+  }, [wifiSSID, wifiPassword, wifiEncryption, wifiHidden, activeTab, setSettings]);
 
   // Sync vCard
   useEffect(() => {
@@ -96,7 +97,7 @@ export const InputSection: React.FC<InputSectionProps> = ({ settings, setSetting
       ].filter(Boolean).join('\n');
       setSettings(prev => ({ ...prev, content: vcard }));
     }
-  }, [vName, vPhone, vEmail, vOrg, vTitle, vUrl, activeTab]);
+  }, [vName, vPhone, vEmail, vOrg, vTitle, vUrl, activeTab, setSettings]);
 
   // Sync Email
   useEffect(() => {
@@ -113,7 +114,7 @@ export const InputSection: React.FC<InputSectionProps> = ({ settings, setSetting
       const mailto = `mailto:${mailTo}?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailBody)}`;
       setSettings(prev => ({ ...prev, content: mailto }));
     }
-  }, [mailTo, mailSubject, mailBody, activeTab]);
+  }, [mailTo, mailSubject, mailBody, activeTab, setSettings]);
 
   // Sync Social
   useEffect(() => {
@@ -136,7 +137,7 @@ export const InputSection: React.FC<InputSectionProps> = ({ settings, setSetting
       }
       setSettings(prev => ({ ...prev, content: url }));
     }
-  }, [socialHandle, socialPlatform, activeTab]);
+  }, [socialHandle, socialPlatform, activeTab, setSettings]);
 
   const handleTabChange = (tabId: QRMode) => {
     setActiveTab(tabId);
@@ -430,29 +431,50 @@ export const InputSection: React.FC<InputSectionProps> = ({ settings, setSetting
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 flex flex-col gap-2">
-            <span className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1"><Palette size={10}/> Cores</span>
-            <div className="flex justify-around items-center">
-                <input type="color" value={settings.fgColor} onChange={(e) => handleChange('fgColor', e.target.value)} className="w-8 h-8 rounded-full border-none cursor-pointer bg-transparent" />
-                <div className="w-[1px] h-6 bg-slate-700"></div>
-                <input type="color" value={settings.bgColor} onChange={(e) => handleChange('bgColor', e.target.value)} className="w-8 h-8 rounded-full border-none cursor-pointer bg-transparent" />
-            </div>
+      <div className="flex flex-col gap-4">
+        {/* Tamanho do QR Code */}
+        <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700/50 space-y-3">
+          <div className="flex justify-between items-center">
+            <span className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1">
+              <Maximize size={10}/> Tamanho
+            </span>
+            <span className="text-[10px] font-bold text-indigo-400">{settings.size}px</span>
+          </div>
+          <input 
+            type="range" 
+            min="128" 
+            max="1024" 
+            step="16"
+            value={settings.size} 
+            onChange={(e) => handleChange('size', parseInt(e.target.value))}
+            className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+          />
         </div>
-        <div className="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 flex flex-col gap-2">
-            <span className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1"><Settings2 size={10}/> Opções</span>
-            <div className="flex justify-around items-center gap-2">
-                <div className="flex items-center gap-1">
-                    <input type="checkbox" checked={settings.includeMargin} onChange={(e) => handleChange('includeMargin', e.target.checked)} className="w-3 h-3 accent-indigo-500" />
-                    <span className="text-[10px] text-slate-400">Margem</span>
-                </div>
-                <select value={settings.level} onChange={(e) => handleChange('level', e.target.value)} className="bg-transparent text-[10px] text-white outline-none">
-                    <option value="L">L</option>
-                    <option value="M">M</option>
-                    <option value="Q">Q</option>
-                    <option value="H">H</option>
-                </select>
-            </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 flex flex-col gap-2">
+              <span className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1"><Palette size={10}/> Cores</span>
+              <div className="flex justify-around items-center">
+                  <input type="color" value={settings.fgColor} onChange={(e) => handleChange('fgColor', e.target.value)} className="w-8 h-8 rounded-full border-none cursor-pointer bg-transparent" />
+                  <div className="w-[1px] h-6 bg-slate-700"></div>
+                  <input type="color" value={settings.bgColor} onChange={(e) => handleChange('bgColor', e.target.value)} className="w-8 h-8 rounded-full border-none cursor-pointer bg-transparent" />
+              </div>
+          </div>
+          <div className="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 flex flex-col gap-2">
+              <span className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1"><Settings2 size={10}/> Opções</span>
+              <div className="flex justify-around items-center gap-2">
+                  <div className="flex items-center gap-1">
+                      <input type="checkbox" checked={settings.includeMargin} onChange={(e) => handleChange('includeMargin', e.target.checked)} className="w-3 h-3 accent-indigo-500" />
+                      <span className="text-[10px] text-slate-400">Margem</span>
+                  </div>
+                  <select value={settings.level} onChange={(e) => handleChange('level', e.target.value)} className="bg-transparent text-[10px] text-white outline-none">
+                      <option value="L">L</option>
+                      <option value="M">M</option>
+                      <option value="Q">Q</option>
+                      <option value="H">H</option>
+                  </select>
+              </div>
+          </div>
         </div>
       </div>
     </div>

@@ -64,12 +64,13 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({ settings }) => {
           {settings.content ? (
             <QRCodeCanvas
               value={settings.content}
-              size={256}
+              size={settings.size}
               bgColor={settings.bgColor}
               fgColor={settings.fgColor}
               level={settings.level}
               includeMargin={settings.includeMargin}
-              className="rounded-lg"
+              className="rounded-lg max-w-full h-auto"
+              style={{ width: '100%', maxWidth: '256px', height: 'auto' }}
             />
           ) : (
             <div className="w-64 h-64 flex flex-col items-center justify-center bg-slate-100 rounded-lg text-slate-400 gap-2">
